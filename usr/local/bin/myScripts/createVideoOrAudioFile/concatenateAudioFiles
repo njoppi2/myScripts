@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Get the current directory
+playlist_dir=$(pwd)
+
+# Warn the user
+echo "The current directory will be used as the playlist directory: $playlist_dir"
+echo "Do you want to continue? Type 'yes' to proceed."
+read -r response
+
+if [ "$response" != "yes" ]; then
+    echo "Aborting."
+    exit 1
+fi
+
+# Create filelist.txt
+echo "Creating filelist.txt..."
+> filelist.txt  # Clear the file if it exists
+for file in *.m4a; do
+    # Escape single quotes in filenames
+    safe_file=$(echo "$file" | sed "s/'/'\\\\''/g")
+    echo "file '$safe_file'" >> filelist.txt
+done
+
+# Concatenate files using ffmpeg
+echo "Concatenating files..."
+ffmpeg -f concat -safe 0 -i filelist.txt -c copy output.m4a
+
+# Cleanup
+echo "Cleaning up..."
+rm filelist.txt
+
+echo "Done! The output file is 'output.m4a'."
+
