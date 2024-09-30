@@ -1156,5 +1156,6 @@
     ],
     "editor.inlineSuggest.enabled": true,
     "git.openRepositoryInParentFolders": "never",
-    "window.zoomLevel": -2
+    "window.zoomLevel": -2,
+    "jupyter.askForKernelRestart": false
 }
