@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Check if a URL was provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <source_url>"
+    exit 1
+fi
+
+# Assign the first argument to the source_url variable
+source_url="$1"
+
+# Get the directory of the script
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Construct the path to yt-dlp.py relative to the script directory
+yt_dlp_path="$script_dir/yt-dlp/yt-dlp.py"
+
+# Create a temporary directory to store downloaded files
+temp_dir="$(mktemp -d)"
+
+# Run the yt-dlp command
+python3 "$yt_dlp_path" -i -f m4a --yes-playlist --file-access-retries 10 --extractor-retries 10 -o "$temp_dir/%(playlist_index)s - %(title)s.%(ext)s" "$source_url"
+
+# Check if the download was successful
+if [ $? -eq 0 ]; then
+    echo "Download completed. Merging files..."
+
+    # Concatenate all downloaded files into a single final file
+    final_file="final_output.m4a"
+    ffmpeg -i "concat:$(ls -1v "$temp_dir"/*.m4a | tr '\n' '|')" -c copy "$final_file"
+
+    if [ $? -eq 0 ]; then
+        echo "Files successfully merged into $final_file"
+    else
+        echo "Error occurred during merging process"
+    fi
+else
+    echo "Download failed"
+fi
+
+# Clean up the temporary directory
+rm -rf "$temp_dir"
+

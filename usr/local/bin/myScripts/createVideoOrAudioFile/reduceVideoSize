@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Directory containing the .mp4 files (current directory)
+input_dir="$(pwd)"
+
+# Directory to save the smaller .mp4 files
+output_dir="$input_dir/small_videos"
+mkdir -p "$output_dir"
+
+# Loop through all .mp4 files in the input directory
+for input_file in "$input_dir"/*.mp4; do
+    # Get the base name of the file (without directory and extension)
+    base_name=$(basename "$input_file" .mp4)
+    
+    # Define the output file name
+    output_file="$output_dir/${base_name}_small.mp4"
+    
+    # Run ffmpeg command
+    ffmpeg -i "$input_file" -b:v 1800k "$output_file"
+done
+
+echo "All files have been processed and saved to $output_dir"
+
